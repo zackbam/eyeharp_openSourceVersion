@@ -24,7 +24,7 @@ ofApp::~ofApp(){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	ofSetCircleResolution(60);
+	ofSetCircleResolution(40);
 	FILE *initParam;
 	help = true;
 	initParam = fopen("eyeharp.txt", "r");
