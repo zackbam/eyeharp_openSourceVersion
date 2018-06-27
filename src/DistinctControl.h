@@ -52,8 +52,8 @@ class DistControl{
         float RelSize;//size related to the height; e.g. 0.06 of the height
 		int orSize;
         float R,G,B;
-        int FCUP;
-        int FCDW;
+        uint64_t FCUP;
+		uint64_t FCDW;
         char name[20];
         ofPoint namePos; //position of the name to be printed
         bool displValue;//is true if the value

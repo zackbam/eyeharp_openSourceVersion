@@ -25,7 +25,8 @@ void Switch::setup(char Name[20] ,bool Value, ofPoint Pos,float Size, int Dwell,
 	orSize=size;
 	per=0.9*size;
 	per2=0.6364*size;
-	dwell=(int)((float)Dwell/1000.0*variables::framerate); //  
+	//dwell=(int)((float)Dwell/1000.0*variables::framerate); //  
+	dwell = Dwell;
 	R=red;B=blue;G=green;
 	pos_=Pos;
 	pos.x=width2+pos_.x*height2;
@@ -67,19 +68,23 @@ void Switch::update(ofPoint gazee){
 		if(!active)    lock=false;
 		changed=false;
 		if(ofDist(gaze.x,gaze.y,magPos.x,magPos.y)<size){
+			if (active == false) //if in the previous framewe were out
+				FC = ofGetElapsedTimeMillis();//save the starting time
 			active=true;
-			if(FC++ >= dwell && !lock && !click) {
+			if(ofGetElapsedTimeMillis() - FC >= dwell && !lock && !click) {
 				value=!value;
-				FC=0;
+				FC = ofGetElapsedTimeMillis();
 				changed=true;
 			}
 		}
 		else{
 			active=false;
-			FC=0;
+			FC = ofGetElapsedTimeMillis();
 		}
 	}
 }
+
+
 
 void Switch::update(ofPoint gazee,bool*sacadic){
 	gaze=gazee;
@@ -123,21 +128,22 @@ void Switch::update(ofPoint gazee,bool*sacadic){
 			active=false;
 	}
 	else{
-		if(changed)    lock=true;
-		if(!active)    lock=false;
-		changed=false;
-
-		if(ofDist(gaze.x,gaze.y,magPos.x,magPos.y)<size && (size>orSize || !eagleEnable)){
-			active=true;
-			if(FC++ >= dwell && !lock) {
-				value=!value;
-				FC=0;
-				changed=true;
+		if (changed)    lock = true;
+		if (!active)    lock = false;
+		changed = false;
+		if (ofDist(gaze.x, gaze.y, magPos.x, magPos.y)<size) {
+			if (active == false) //if in the previous framewe were out
+				FC = ofGetElapsedTimeMillis();//save the starting time
+			active = true;
+			if (ofGetElapsedTimeMillis() - FC >= dwell && !lock && !click) {
+				value = !value;
+				FC = ofGetElapsedTimeMillis();
+				changed = true;
 			}
 		}
-		else{
-			active=false;
-			FC=0;
+		else {
+			active = false;
+			FC = ofGetElapsedTimeMillis();
 		}
 	}
 }

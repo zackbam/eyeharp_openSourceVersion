@@ -24,7 +24,8 @@ void DistControl::setup(char Name[20] ,ofPoint posup, ofPoint posdw,
 	per2DW=0.5656*sizeUP;
     step=Step;
     value=setval;
-	dwell=(int)(variables::framerate*(float)Dwell/1000.f); //
+	//dwell=(int)(variables::framerate*(float)Dwell/1000.f); //
+	dwell = Dwell;
     R=red;B=blue;G=green;
     FCUP=0;
     FCDW=0;
@@ -64,16 +65,18 @@ void DistControl::update(ofPoint pt){
 	}
 	else{
 		if(ofDist(pt.x,pt.y,magPosUP.x,magPosUP.y)<sizeUP){
+			if (activeUP == false) //if in the previous framewe were out
+				FCUP = ofGetElapsedTimeMillis();//save the starting time
 			activeUP=true;
-			if(FCUP++ >= dwell){
+			if (ofGetElapsedTimeMillis() - FCUP >= dwell) {//if we passed the time
 				value+=step;
 				if(value>max) value=max;
-				FCUP=0;
+				FCUP= ofGetElapsedTimeMillis();
 				changed=true;
 			}
 		}
 		else{
-			FCUP=0;
+			FCUP = ofGetElapsedTimeMillis();
 			activeUP=false;
 		}
 	}
@@ -85,7 +88,7 @@ void DistControl::update(ofPoint pt){
 			if (Switch::pressed && ofDist(Switch::pressedPos.x, Switch::pressedPos.y, magPosDW.x, magPosDW.y)<sizeDW) {
 				Switch::pressed=false;
 				value-=step;
-				if(value<min) value=min;
+				if(value<min) value = min;
 				changed=true;
 			}
 		}
@@ -93,18 +96,20 @@ void DistControl::update(ofPoint pt){
 			activeDW=false;
 	}
 	else{
-		if(ofDist(pt.x,pt.y,magPosDW.x,magPosDW.y)<sizeDW){
-			activeDW=true;
-			if(FCDW++ >= dwell){
-				value-=step;
-				if(value<min) value=min;
-				FCDW=0;
-				changed=true;
+		if (ofDist(pt.x, pt.y, magPosDW.x, magPosDW.y)<sizeDW) {
+			if (activeDW == false) //if in the previous framewe were out
+				FCDW = ofGetElapsedTimeMillis();//save the starting time
+			activeDW = true;
+			if (ofGetElapsedTimeMillis() - FCDW >= dwell) {//if we passed the time
+				value -= step;
+				if (value<min) value = min;
+				FCDW = ofGetElapsedTimeMillis();
+				changed = true;
 			}
 		}
-		else{
-			FCDW=0;
-			activeDW=false;
+		else {
+			FCDW = ofGetElapsedTimeMillis();
+			activeDW = false;
 		}
 	}
     color=255*(value-min)/(max-min);

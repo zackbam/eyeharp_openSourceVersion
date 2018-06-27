@@ -27,7 +27,8 @@ void control::setup(char Name[20], int Color ,ofPoint posup, ofPoint posdw,
     cstep=Cstep;
     step=(float)(max-min)/255.0 * cstep;
     value=(float)color/255.0*(float)(max-min)+min;
-	dwell=(int)(variables::framerate*(float)Dwell/1000.0); //
+	//dwell=(int)(variables::framerate*(float)Dwell/1000.0); //
+	dwell = Dwell;
     R=red;B=blue;G=green;
     FCUP=0;
     FCDW=0;
@@ -71,20 +72,23 @@ void control::update(ofPoint pt){
 	}
 	else{
 		if(ofDist(pt.x,pt.y,magPosUP.x,magPosUP.y)<sizeUP){
+			if (activeUP == false) //if in the previous framewe were out
+				FCUP = ofGetElapsedTimeMillis();//save the starting time
 			activeUP=true;
-			if(FCUP++ >= dwell){
+		
+			if(ofGetElapsedTimeMillis() - FCUP >= dwell){//if we passed the time
 				color+=cstep;
 				value+=step;
 				if(color>255-cstep){
 					value=max;
 					color=255;
 				}
-				FCUP=0;
+				FCUP = ofGetElapsedTimeMillis();//save the starting time
 				changed=true;
 			}
 		}
 		else{
-			FCUP=0;
+			FCUP = ofGetElapsedTimeMillis();//save the starting time
 			activeUP=false;
 		}
 	}
@@ -108,21 +112,25 @@ void control::update(ofPoint pt){
 			activeDW=false;
 	}
 	else{
+		
 		if(ofDist(pt.x,pt.y,magPosDW.x,magPosDW.y)<sizeDW){
+			if (activeDW == false) //if in the previous framewe were out
+				FCDW = ofGetElapsedTimeMillis();//save the starting time
 			activeDW=true;
-			if(FCDW++ >= dwell){
+		
+			if(ofGetElapsedTimeMillis() - FCDW >= dwell){//if we passed the time
 				color-=cstep;
 				value-=step;
-				if(color<cstep){
+				if(value<min){
 					value=min;
 					color=0;
 				}
-				FCDW=0;
+				FCDW = ofGetElapsedTimeMillis();//save the starting time
 				changed=true;
 			}
 		}
 		else{
-			FCDW=0;
+			FCDW = ofGetElapsedTimeMillis();//save the starting time
 			activeDW=false;
 		}
 	}

@@ -248,7 +248,7 @@ void stepSequencer::update(ofPoint gaze,bool*sacadic,float*velocity){
 bool stepSequencer::sacadicDistance(ofPoint gaze,float* velocity,bool sacadic){
 	bool awayEnough=false;
 	outSideLense=outsideMagRegion(gaze,lastEagle);
-	if(*velocity<200 && (!Switch::magActive || outSideLense || Switch::lenseSlave)){//if an new fixation outside
+	if((!Switch::magActive || outSideLense || Switch::lenseSlave)){//if an new fixation outside
 		Switch::magActive=false;
 		timer++;
 		if(timer>=timeThre || Switch::lenseSlave){

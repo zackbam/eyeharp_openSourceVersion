@@ -45,7 +45,7 @@ class Switch{
 		static int magThr;
 		char name[100];
     protected:
-        int FC;
+        uint64_t FC;
         float dwell;
 		int height;
 		int width;

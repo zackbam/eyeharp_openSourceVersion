@@ -265,6 +265,10 @@ void Disc::update(ofPoint gaze, float* velocity,bool *sacadic){
 	}
 	else
 		replaySameTimer = 0;
+	if (ofDist(gaze.x, gaze.y, width2, height2) > height2) {
+
+		replaySame.setup("", false, ofPoint(-10, -10), 0.001, 10, 0, 0, 0, false);
+	}
 	//cout << /*"TempoNote: " << tempNote << */" note: " << note << endl;
 	if(!*conf)
 		testSong.update(gaze);

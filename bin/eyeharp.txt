@@ -2,6 +2,7 @@ discNotesNumber 12
 stepSequencerNotesNumber 6
 chords 0
 showScale 1
+framerate 90
 scalePreset 0
 mouseEyeTracker 1
 clickDwell 1
@@ -30,7 +31,7 @@ replayFadeOut 500
 numberNote 1
 firstNote 4
 recordChords 0
-alperMode 1
+alperMode 0
 scale 0 2 4 5 7 9 11,Major
 scale 0 3 5 6 7 10,blues
 scale 0 2 4 7 9,pentatonic

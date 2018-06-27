@@ -261,31 +261,27 @@ void ofApp::update(){
 					//if (myTobii.eventParams.X > ofGetWindowPositionX() && myTobii.eventParams.X<ofGetWindowPositionX() + ofGetWidth() && myTobii.eventParams.Y>ofGetWindowPositionY() && myTobii.eventParams.Y < ofGetWindowPositionY() + ofGetHeight()) {
 					static uint64_t lastValidTime = ofGetElapsedTimeMillis();
 
-					static bool firstMouse= true;
+					static bool EyesDetected= true;
 					//cout << raw.x << "," << myTobii.eventParams.X << endl;
 					if (raw.x != (float)myTobii.eventParams.X && raw.y != (float)myTobii.eventParams.Y) {
 						raw.x = myTobii.eventParams.X;
 						raw.y = myTobii.eventParams.Y;
+						if (EyesDetected == false) {//if before eyes were not detected
+							for (int i = 0; i < fixationSamples; i++) {
+								gbuffer[i] = raw;
+							}
+						}
 						lastValidTime = ofGetElapsedTimeMillis();
-						firstMouse = true;
 						mySmooth();
 						//eyeSmoothed = ofPoint(raw.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
 						eyeSmoothed = ofPoint(smooth.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
+						EyesDetected = true;
 					}
-					else if (ofGetElapsedTimeMillis() - lastValidTime > 500) {
+					else if (ofGetElapsedTimeMillis() - lastValidTime > 500 && EyesDetected) {
 						sacadic = true;
-						if (firstMouse) {
-							SetCursorPos(ofGetWindowPositionX() + 1, ofGetWindowPositionY() + 1);
-							firstMouse = false; 
-							smooth = { 0.f,0.f };
-							for (int i = 0; i <fixationSamples; i++) {
-								gbuffer[i].x = 0;
-								gbuffer[i].y = 0;
-							}
-							avgNew = { 0.f, 0.f };
-						}
+						SetCursorPos(ofGetWindowPositionX() + 1, ofGetWindowPositionY() + 1);
+						EyesDetected = false;
 						eyeSmoothed = ofPoint(mousex, mousey);
-						
 					}
 					 
 					//}
@@ -327,8 +323,10 @@ void ofApp::mySmooth(){
 					smooth.x = 0.95f*smooth.x + raw.x*0.05f;
 					smooth.y = 0.95f*smooth.y + raw.y*0.05;
 				}
-				else
+				else {
 					smooth = avgNew;
+					cout << "F";
+				}
 			}
 			prFixation = fix;
 		}

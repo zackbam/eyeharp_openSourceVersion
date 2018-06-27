@@ -48,8 +48,8 @@ class control{
         int pointsize; //the size of the point in the middle
         float RelSize;//size related to the height; e.g. 0.06 of the height
         float R,G,B;
-        int FCUP;
-        int FCDW;
+        uint64_t FCUP;
+		uint64_t FCDW;
         float step;//step to change the value (rescaled to min-max)
         bool activeUP; //we are changing the value of this button
         bool activeDW;
