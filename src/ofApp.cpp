@@ -40,10 +40,11 @@ void ofApp::setup(){
 	HARP.eye.disc.numberNote = true;
 	sscale tempScale;
 	variables::notesPerScale = 7;
-	variables::framerate = 30.f;
+	variables::framerate = 90.f;
 	variables::inReleaseFIXVEL = 1000;
-	variables::myfont.loadFont("Xoxoxa.ttf", ofGetScreenHeight()*0.02f);
-	variables::myfontPie.loadFont("Xoxoxa.ttf", ofGetScreenHeight()*0.017f);
+	//variables::myfont.loadFont("Xoxoxa.ttf", ofGetScreenHeight()*0.02f);
+	variables::myfont.loadFont("Noteworthy-Bold.ttf", ofGetScreenHeight()*0.02f);
+	variables::myfontPie.loadFont("Noteworthy-Bold.ttf", ofGetScreenHeight()*0.017f);
 	variables::firstNote = 4;
 	variables::record_chords = 0;
 	variables::harmonize = 0;
@@ -214,6 +215,7 @@ void ofApp::setup(){
 	}
 	HARP.eye.disc.replaySame.value = replaySame;
 	HARP.eye.disc.replaySameActive = replaySame;
+	
 }
 void ofApp::exit() {
 	HARP.exitApp();
@@ -256,13 +258,37 @@ void ofApp::update(){
 					/*if(HARP.eye.disc.FIXVEL<9999)
 						HARP.eye.disc.FIXVEL = 9999999;*/
 					//SetCursorPos(myTobii.eventParams.X, myTobii.eventParams.Y);
-					if (myTobii.eventParams.X > ofGetWindowPositionX() && myTobii.eventParams.X<ofGetWindowPositionX() + ofGetWidth() && myTobii.eventParams.Y>ofGetWindowPositionY() && myTobii.eventParams.Y < ofGetWindowPositionY() + ofGetHeight()) {
+					//if (myTobii.eventParams.X > ofGetWindowPositionX() && myTobii.eventParams.X<ofGetWindowPositionX() + ofGetWidth() && myTobii.eventParams.Y>ofGetWindowPositionY() && myTobii.eventParams.Y < ofGetWindowPositionY() + ofGetHeight()) {
+					static uint64_t lastValidTime = ofGetElapsedTimeMillis();
+
+					static bool firstMouse= true;
+					//cout << raw.x << "," << myTobii.eventParams.X << endl;
+					if (raw.x != (float)myTobii.eventParams.X && raw.y != (float)myTobii.eventParams.Y) {
 						raw.x = myTobii.eventParams.X;
 						raw.y = myTobii.eventParams.Y;
+						lastValidTime = ofGetElapsedTimeMillis();
+						firstMouse = true;
+						mySmooth();
+						//eyeSmoothed = ofPoint(raw.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
+						eyeSmoothed = ofPoint(smooth.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
 					}
-					mySmooth();
-					//eyeSmoothed = ofPoint(raw.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
-					eyeSmoothed = ofPoint(smooth.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
+					else if (ofGetElapsedTimeMillis() - lastValidTime > 500) {
+						sacadic = true;
+						if (firstMouse) {
+							SetCursorPos(ofGetWindowPositionX() + 1, ofGetWindowPositionY() + 1);
+							firstMouse = false; 
+							smooth = { 0.f,0.f };
+							for (int i = 0; i <fixationSamples; i++) {
+								gbuffer[i].x = 0;
+								gbuffer[i].y = 0;
+							}
+							avgNew = { 0.f, 0.f };
+						}
+						eyeSmoothed = ofPoint(mousex, mousey);
+						
+					}
+					 
+					//}
 					//SetCursorPos(smooth.x, smooth.y);
 				}
 				else
@@ -291,46 +317,50 @@ void ofApp::update(){
 
 void ofApp::mySmooth(){
 	//cout<<gdata.state<<'\n';
-	if(tracker==TOBII || (tracker==EYETRIBE && gdata.state==7)){
-		bool fix = fixation(); 
-		if (fix && !prFixation) {
-			smooth.x = avgNew.x;
-			smooth.y = avgNew.y;
+	if (tracker == TOBII || (tracker == EYETRIBE && gdata.state == 7)) {
+		if (fixationSamples < 2)
+			smooth = raw;
+		else {
+			bool fix = fixation();
+			if (fix) {
+				if (prFixation) {
+					smooth.x = 0.95f*smooth.x + raw.x*0.05f;
+					smooth.y = 0.95f*smooth.y + raw.y*0.05;
+				}
+				else
+					smooth = avgNew;
+			}
+			prFixation = fix;
 		}
-		else{
-			/*smooth.x=smooth.x*SM+raw.x*(1-SM);
-			smooth.y=smooth.y*SM+raw.y*(1-SM);*/
-			smooth = lastFixation;
-		}
-		prFixation = fix;
 	}
-}
 
+}
 bool ofApp::fixation() {
 	gbuffer[bpos].x = raw.x;
 	gbuffer[bpos].y = raw.y;
 	bool fix;
 	int i;
-	avgNew.x = 0; avgNew.y = 0;
+	avgNew = { 0.f, 0.f };
 	int prpos = bpos - 1;
 	if (prpos < 0)
-		prpos += fixationSamples ;
-	for (i = 0; i <fixationSamples  ; i ++) {
+		prpos += fixationSamples;
+	for (i = 0; i <fixationSamples; i++) {
 		avgNew.x += gbuffer[i].x;
 		avgNew.y += gbuffer[i].y;
 	}
-	avgNew.x /= (float)fixationSamples ;
-	avgNew.y /= (float)fixationSamples ;
+	avgNew.x /= (float)fixationSamples;
+	avgNew.y /= (float)fixationSamples;
 	fix = true;
-	for (i = 0; i <fixationSamples ; i++) {
-		if (ofDist(gbuffer[i].x, gbuffer[i].y, avgNew.x, avgNew.y) > STH * ofGetScreenHeight()) {
-			fix=false;
+	static uint64_t lastGazeTime = ofGetElapsedTimeMillis();
+	uint64_t elapsedTime = ofGetElapsedTimeMillis() - lastGazeTime;
+	lastGazeTime = ofGetElapsedTimeMillis();
+	//cout << elapsedTime << endl;
+	for (i = 0; i <fixationSamples; i++) {
+		if (ofDist(gbuffer[i].x, gbuffer[i].y, avgNew.x, avgNew.y) / (float)elapsedTime > 0.001f * ofGetScreenHeight()) {
+			fix = false;
 		}
 	}
-	if (fix) {
-		lastFixation = avgNew;
-	}
-	bpos = (bpos + 1) % fixationSamples ;
+	bpos = (bpos + 1) % fixationSamples;
 	return fix;
 }
 
@@ -357,6 +387,7 @@ void ofApp::draw(){
 	variables::myfont.drawString(temp,ofPoint(mousex-100,mousey));*/
 	/*string temp = to_string(gdata.state);
 	variables::myfont.drawString(temp, ofPoint(ofGetWidth()/2,ofGetHeight()/2)); */
+	//ofCircle(raw, 0.1f*ofGetScreenHeight());
 }
 
 void ofApp::audioRequested 	(float * output, int bufferSize, int nChannels){

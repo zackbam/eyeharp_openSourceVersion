@@ -932,10 +932,10 @@ void EyeHarp::resized(int w, int h){
 	sequencerMidi.resized(w, h);
 	configureAlper.resized(w, h);
 	harmonize.resized(w, h);
-
+/*
 	variables::myfont.loadFont("Xoxoxa.ttf", h*0.02f);
 
-	variables::myfontPie.loadFont("Xoxoxa.ttf", h*0.017f);
+	variables::myfontPie.loadFont("Xoxoxa.ttf", h*0.017f);*/
 }
 
 

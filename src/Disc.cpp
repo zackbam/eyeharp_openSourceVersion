@@ -441,31 +441,86 @@ void Disc::draw(){
 					variables::myfontPie.drawString(temp, curPos.x - variables::myfontPie.stringWidth(temp) / 2.f, curPos.y);
 				}
 				else {
-					switch ((i + variables::firstNote) % variables::notesPerScale + 1) {
+					int semitone = *scale[(i + variables::firstNote) % variables::notesPerScale];
+					//int prSemitone = *scale[(i-1 + variables::firstNote) % variables::notesPerScale];
+					switch (semitone) {
+					case 0:
+						variables::myfontPie.drawString("DO", curPos.x - variables::myfontPie.stringWidth("DO") / 2.f, curPos.y);
+						break;
 					case 1:
-						//ofSetColor(255);
-						variables::myfontPie.drawString("DO", curPos.x-variables::myfontPie.stringWidth("DO")/2.f, curPos.y);
-						//variables::myfontPie.drawString("DO", curPos.x-variables::myfontPie.stringWidth("DO")/2.f, curPos.y);
+						if (true)
+							variables::myfontPie.drawString("REb", curPos.x - variables::myfontPie.stringWidth("REb") / 2.f, curPos.y);
+						else
+							variables::myfontPie.drawString("DO#", curPos.x - variables::myfontPie.stringWidth("DO#") / 2.f, curPos.y);
 						break;
 					case 2:
-						variables::myfontPie.drawString("RE", curPos.x-variables::myfontPie.stringWidth("RE")/2.f, curPos.y);
+						variables::myfontPie.drawString("RE", curPos.x - variables::myfontPie.stringWidth("RE") / 2.f, curPos.y);
 						break;
 					case 3:
-						variables::myfontPie.drawString("MI", curPos.x-variables::myfontPie.stringWidth("MI")/2.f, curPos.y);
+						if (true)
+							variables::myfontPie.drawString("MIb", curPos.x - variables::myfontPie.stringWidth("MIb") / 2.f, curPos.y);
+						else
+							variables::myfontPie.drawString("RE#", curPos.x - variables::myfontPie.stringWidth("RE#") / 2.f, curPos.y);
 						break;
 					case 4:
-						variables::myfontPie.drawString("FA", curPos.x-variables::myfontPie.stringWidth("FA")/2.f, curPos.y);
+						variables::myfontPie.drawString("MI", curPos.x - variables::myfontPie.stringWidth("MI") / 2.f, curPos.y);
 						break;
 					case 5:
-						variables::myfontPie.drawString("SOL", curPos.x-variables::myfontPie.stringWidth("SOL")/2.f, curPos.y);
+						variables::myfontPie.drawString("FA", curPos.x - variables::myfontPie.stringWidth("FA") / 2.f, curPos.y);
 						break;
 					case 6:
-						variables::myfontPie.drawString("LA", curPos.x-variables::myfontPie.stringWidth("LA")/2.f, curPos.y);
+						if (true)
+							variables::myfontPie.drawString("SOLb", curPos.x - variables::myfontPie.stringWidth("SOLb") / 2.f, curPos.y);
+						else
+							variables::myfontPie.drawString("FA#", curPos.x - variables::myfontPie.stringWidth("FA#") / 2.f, curPos.y);
 						break;
 					case 7:
-						variables::myfontPie.drawString("SI", curPos.x-variables::myfontPie.stringWidth("SI")/2.f, curPos.y);
+						variables::myfontPie.drawString("SOL", curPos.x - variables::myfontPie.stringWidth("SOL") / 2.f, curPos.y);
+						break;
+					case 8:
+						if (true)
+							variables::myfontPie.drawString("LAb", curPos.x - variables::myfontPie.stringWidth("LAb") / 2.f, curPos.y);
+						else
+							variables::myfontPie.drawString("SOL#", curPos.x - variables::myfontPie.stringWidth("SOL#") / 2.f, curPos.y);
+						break;
+					case 9:
+						variables::myfontPie.drawString("LA", curPos.x - variables::myfontPie.stringWidth("LA") / 2.f, curPos.y);
+						break;
+					case 10:
+						if (true)
+							variables::myfontPie.drawString("SIb", curPos.x - variables::myfontPie.stringWidth("SIb") / 2.f, curPos.y);
+						else
+							variables::myfontPie.drawString("LA#", curPos.x - variables::myfontPie.stringWidth("LA#") / 2.f, curPos.y);
+						break;
+					case 11:
+						variables::myfontPie.drawString("SI", curPos.x - variables::myfontPie.stringWidth("SI") / 2.f, curPos.y);
 						break;
 					}
+					//switch ((i + variables::firstNote) % variables::notesPerScale + 1) {
+					//case 1:
+					//	//ofSetColor(255);
+					//	variables::myfontPie.drawString("DO", curPos.x-variables::myfontPie.stringWidth("DO")/2.f, curPos.y);
+					//	//variables::myfontPie.drawString("DO", curPos.x-variables::myfontPie.stringWidth("DO")/2.f, curPos.y);
+					//	break;
+					//case 2:
+					//	variables::myfontPie.drawString("RE", curPos.x-variables::myfontPie.stringWidth("RE")/2.f, curPos.y);
+					//	break;
+					//case 3:
+					//	variables::myfontPie.drawString("MI", curPos.x-variables::myfontPie.stringWidth("MI")/2.f, curPos.y);
+					//	break;
+					//case 4:
+					//	variables::myfontPie.drawString("FA", curPos.x-variables::myfontPie.stringWidth("FA")/2.f, curPos.y);
+					//	break;
+					//case 5:
+					//	variables::myfontPie.drawString("SOL", curPos.x-variables::myfontPie.stringWidth("SOL")/2.f, curPos.y);
+					//	break;
+					//case 6:
+					//	variables::myfontPie.drawString("LA", curPos.x-variables::myfontPie.stringWidth("LA")/2.f, curPos.y);
+					//	break;
+					//case 7:
+					//	variables::myfontPie.drawString("SI", curPos.x-variables::myfontPie.stringWidth("SI")/2.f, curPos.y);
+					//	break;
+					//}
 				}
             }
             int pos=i+CHORDSNUM+1-NotesNumber.value;
@@ -525,8 +580,66 @@ void Disc::draw(){
 				variables::myfontPie.drawString(temp, curPos.x - variables::myfontPie.stringWidth(temp) / 2.f, curPos.y);
 
 			}
+			
 			else {
-				switch ((i + variables::firstNote) % variables::notesPerScale + 1) {
+				/*if (i < 7)
+					cout <<i<<":"<< *scale[i] << endl;*/
+				int semitone = *scale[(i + variables::firstNote) % variables::notesPerScale];
+				//int prSemitone = *scale[(i-1 + variables::firstNote) % variables::notesPerScale];
+				switch (semitone) {
+				case 0:
+					variables::myfontPie.drawString("DO", curPos.x - variables::myfontPie.stringWidth("DO") / 2.f, curPos.y);
+					break;
+				case 1:
+					if(true)
+						variables::myfontPie.drawString("REb", curPos.x - variables::myfontPie.stringWidth("REb") / 2.f, curPos.y);
+					else
+						variables::myfontPie.drawString("DO#", curPos.x - variables::myfontPie.stringWidth("DO#") / 2.f, curPos.y);
+					break;
+				case 2:
+					variables::myfontPie.drawString("RE", curPos.x - variables::myfontPie.stringWidth("RE") / 2.f, curPos.y);
+					break;
+				case 3:
+					if (true)
+						variables::myfontPie.drawString("MIb", curPos.x - variables::myfontPie.stringWidth("MIb") / 2.f, curPos.y);
+					else
+						variables::myfontPie.drawString("RE#", curPos.x - variables::myfontPie.stringWidth("RE#") / 2.f, curPos.y);
+					break;
+				case 4:
+					variables::myfontPie.drawString("MI", curPos.x - variables::myfontPie.stringWidth("MI") / 2.f, curPos.y);
+					break;
+				case 5:
+					variables::myfontPie.drawString("FA", curPos.x - variables::myfontPie.stringWidth("FA") / 2.f, curPos.y);
+					break;
+				case 6:
+					if (true)
+						variables::myfontPie.drawString("SOLb", curPos.x - variables::myfontPie.stringWidth("SOLb") / 2.f, curPos.y);
+					else
+						variables::myfontPie.drawString("FA#", curPos.x - variables::myfontPie.stringWidth("FA#") / 2.f, curPos.y);
+					break;
+				case 7:
+					variables::myfontPie.drawString("SOL", curPos.x - variables::myfontPie.stringWidth("SOL") / 2.f, curPos.y);
+					break;
+				case 8:
+					if (true)
+						variables::myfontPie.drawString("LAb", curPos.x - variables::myfontPie.stringWidth("LAb") / 2.f, curPos.y);
+					else
+						variables::myfontPie.drawString("SOL#", curPos.x - variables::myfontPie.stringWidth("SOL#") / 2.f, curPos.y);
+					break;
+				case 9:
+					variables::myfontPie.drawString("LA", curPos.x - variables::myfontPie.stringWidth("LA") / 2.f, curPos.y);
+					break;
+				case 10:
+					if (true)
+						variables::myfontPie.drawString("SIb", curPos.x - variables::myfontPie.stringWidth("SIb") / 2.f, curPos.y);
+					else
+						variables::myfontPie.drawString("LA#", curPos.x - variables::myfontPie.stringWidth("LA#") / 2.f, curPos.y);
+					break;
+				case 11:
+					variables::myfontPie.drawString("SI", curPos.x - variables::myfontPie.stringWidth("SI") / 2.f, curPos.y);
+					break;
+				}
+				/*switch ((i + variables::firstNote) % variables::notesPerScale + 1) {
 				case 1:
 					variables::myfontPie.drawString("DO", curPos.x-variables::myfontPie.stringWidth("DO")/2.f, curPos.y);
 					break;
@@ -548,7 +661,7 @@ void Disc::draw(){
 				case 7:
 					variables::myfontPie.drawString("SI", curPos.x-variables::myfontPie.stringWidth("SI")/2.f, curPos.y);
 					break;
-				}
+				}*/
 			}
 		}
     }

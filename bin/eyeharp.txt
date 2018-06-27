@@ -1,4 +1,4 @@
-discNotesNumber 13
+discNotesNumber 12
 stepSequencerNotesNumber 6
 chords 0
 showScale 1
@@ -10,7 +10,7 @@ help 0
 tomidi 1
 fullscreen 0
 monophonicStep 1
-fixationSamples 5
+fixationSamples 3
 showGaze 1
 LoopBe_loopMIDI_other 1
 semitoneActive 0
@@ -21,8 +21,8 @@ cc7 0
 cc11 1
 afterTouch 1
 MINVOL 60
-inRelease 1
-FIXVEL 30
+inRelease 0
+FIXVEL 50
 BreathSensor 0
 loadSong 0
 replaySame 1
