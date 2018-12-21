@@ -11,10 +11,11 @@ Switch Disc::chordONOFF;
 
 void Disc::setup(int NumOfNotes,float red,float green,float blue,int * Chord, bool Advanced,bool* Conf, bool SemitoneActive){
 	if(variables::alperMode)
-		NotesNumber.setup("NotesNum", ofPoint(-1.28, 0.55), ofPoint(-1.62, 0.55),7,36,NumOfNotes,1, 0.07, 800, 0.6f, 0.2f, 0.0f);
+		NotesNumber.setup("NotesNum", ofPoint(-1.28, 0.55), ofPoint(-1.62, 0.55),2,36,NumOfNotes,1, 0.07, 800, 0.6f, 0.2f, 0.0f);
 	else
-		NotesNumber.setup("NotesNum", ofPoint(-1.28, 0.5) , ofPoint(-1.62, 0.5), 7, 36, NumOfNotes, 1, 0.085, 800, 0.6f, 0.2f, 0.0f);
-    chord=Chord;
+		NotesNumber.setup("NotesNum", ofPoint(-1.28, 0.5) , ofPoint(-1.62, 0.5), 2, 36, NumOfNotes, 1, 0.085, 800, 0.6f, 0.2f, 0.0f);
+	variables::pieSize = &(NotesNumber.value);
+	chord=Chord;
 	conf=Conf;
 	chordnum=CHORDSNUM;
     advanced=Advanced;
@@ -62,7 +63,10 @@ void Disc::setup(int NumOfNotes,float red,float green,float blue,int * Chord, bo
 	releaseDist = height2*RELEASE_DIST;
 	releaseDistEnd = releaseDist*RELEASE_DIST_END;
 	pressed = false;
-	notesONOFF.setup("ON/OFF", true, ofPoint(-1.5, -0.75), 0.1f, 800, 0.6f, 0.2f, 0.0f, false);
+	if(variables::alperMode==2)
+		notesONOFF.setup("ON/OFF", true, ofPoint(-1.5, 0.65), 0.3f, 400, 0.6f, 0.2f, 0.0f, false);
+	else
+		notesONOFF.setup("ON/OFF", true, ofPoint(-1.5, 0.75), 0.1f, 800, 0.6f, 0.2f, 0.0f, false);
 	semiActive = -1;
 	SemiSize = height2*0.35;
 	semitoneActive = SemitoneActive;
@@ -446,6 +450,7 @@ void Disc::draw(){
 				}
 				else {
 					int semitone = *scale[(i + variables::firstNote) % variables::notesPerScale];
+					semitone = (semitone + 120 + *variables::transpose) % 12;
 					//int prSemitone = *scale[(i-1 + variables::firstNote) % variables::notesPerScale];
 					switch (semitone) {
 					case 0:
@@ -589,6 +594,7 @@ void Disc::draw(){
 				/*if (i < 7)
 					cout <<i<<":"<< *scale[i] << endl;*/
 				int semitone = *scale[(i + variables::firstNote) % variables::notesPerScale];
+				semitone = (semitone + 120 + *variables::transpose) % 12;
 				//int prSemitone = *scale[(i-1 + variables::firstNote) % variables::notesPerScale];
 				switch (semitone) {
 				case 0:

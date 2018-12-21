@@ -335,6 +335,7 @@ void stepSequencer::updatePitch(){
             for(int j=0;j<numberOfNotes.value;j++){
 				if(seqNote[i][j].sounds){
 					seqNote[i][j].releaseMidi(seqNote[i][j].midinote);
+
 					//seqNote[i][j].StepMidiOut->sendNoteOff(sequencer_midi, seqNote[i][j].midinote, 0);
 				}
 			}

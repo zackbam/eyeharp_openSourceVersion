@@ -3,7 +3,6 @@
 
 
 #include "ofMain.h"
-#include "MyGaze.h"
 #include "tobii.h"
 #include "EyeHarp.h"
 //#define DISPL 3
@@ -43,10 +42,8 @@ class ofApp : public ofBaseApp {
 		bool firstRead;
 		//----- scenes
 		tobii myTobii;
-		MyGaze tribe;
 		EyeHarp HARP;
 		bool sacadic;
-		gtl::GazeData gdata;
 		eyetracker tracker;
 		ofPoint eyeSmoothed;
         ofSoundStream soundstream;

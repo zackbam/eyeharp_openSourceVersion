@@ -38,7 +38,7 @@ void Eye::setup(int * chord, DistControl * Scale,bool* Conf,int noteNumber,bool 
 		octave.setup("8va", ofPoint(1.62, 0.82), ofPoint(1.3, 0.82), -1, 3, 1, 1, 0.07, 1000, 0.2, 0.2, 0, true);
 	else
 		octave.setup("8va", ofPoint(-1.6, 0.13), ofPoint(-1.6, -0.25), -1, 3, 1, 1, 0.09, 1000, 0.2, 0.2, 0, true);
-
+	variables::octave = &(octave.value);
     advanced.setup("Advanced",false,ofPoint(-0.8,-0.85),0.05f,1000,0.7,0.4,0,false);
     playArpeggio.setup("ArpeggioON",false,ofPoint(-1.05,-0.6),0.05f,1000,0.7,.4,0,false);
     oct=octave.value;
@@ -122,7 +122,8 @@ void Eye::update(ofPoint Gaze, float* Velocity,bool *sacadic){
 }
 
 void Eye::basicMode(){
-    timbrePresets.update(gaze);
+	if(variables::internalSound)
+		timbrePresets.update(gaze);
    // 
   //  playArpeggio.update(gaze);
     if(timbrePresets.changed){
@@ -237,7 +238,8 @@ void Eye::draw(){
     disc.draw();
 	if (*conf) {
 		disc.NotesNumber.draw();
-		timbrePresets.draw();
+		if(variables::internalSound)
+			timbrePresets.draw();
 		octave.draw();
 
 	}

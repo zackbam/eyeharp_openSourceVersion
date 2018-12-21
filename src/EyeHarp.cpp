@@ -24,21 +24,12 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
 	sequencerNote::sequencer_midi = MIDICH2;
 	cc1 = 0; cc2 = 0; cc7 = 1; cc11 = 0; afterTouch = 0;
 	sampleDIVframe = SAMPLERATE / variables::framerate;
-	if (LoopBeLoopMidi == 0) {
-		s1 = "LoopBe";
-		s2 = "loopMI";
-	}
-	else if(LoopBeLoopMidi == 1)
-	{
-		s1 = "loopMI";
-		s2 = "LoopBe";
-	}
 	exit.setup("QUIT", false, ofPoint(1.1, 0.8), 0.1, 1000, 0, 0, 0, false);
-	midiAvailable=false;
-	if (LoopBeLoopMidi == 0 || LoopBeLoopMidi == 1) {
-		for (int i = 0; i < midiOut.getNumPorts(); i++) {
-			string s(midiOut.getPortName(i));
-			if (s.compare(0, 6, s1) == 0) {
+
+		midiAvailable = false;
+		for (int i = 0; i < midiOut.getNumOutPorts(); i++) {
+			string s(midiOut.getOutPortName(i));
+			if (s.compare(0, 7, "eyeharp") == 0) {
 				midiOut.openPort(i);
 				cout << "Connected to " << s << ". Sending melodies to channel 1 and arpeggios to Channel 2\n";
 				midiAvailable = true;
@@ -47,50 +38,60 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
 		}
 
 		if (!midiAvailable) {
-			for (int i = 0; i < midiOut.getNumPorts(); i++) {
-				string s(midiOut.getPortName(i));
-				if (s.compare(0, 6, s2) == 0) {
-					midiOut.openPort(i);
-					cout << "\nConnected to " << s << ". Sending melodies to channel 1 and arpeggios to Channel 2\n";
-					midiAvailable = true;
-					break;
+			if (midiOut.getNumOutPorts() == 1) {
+				midiOut.openPort(0);
+				printf("No midi port with name eyeharp was found! Please make sure loopmidi is installed and a midi port with name eyeharp is created.\n");
+				cout << "Connected to " << midiOut.getOutPortName(0) << ". Sending melodies to channel 1 and arpeggios to Channel 2\n";
+
+				midiAvailable = true;
+			}
+			else if (midiOut.getNumOutPorts() > 1) {
+				printf("No midi port with name eyeharp was found! Please make sure loopmidi is installed and a midi port with name eyeharp is created. Select the number (0 to %d) of the midi out port:\n", midiOut.getNumOutPorts() - 1);
+				midiOut.listOutPorts();
+				int temp = -1;
+				while (temp < 0 || temp >= midiOut.getNumOutPorts()) {
+					scanf("%d", &temp);
+					if (temp >= 0 && temp < midiOut.getNumOutPorts()) {
+						midiOut.openPort(temp);
+						cout << "Connected to " << midiOut.getOutPortName(temp) << ". Sending melodies to channel 1 and arpeggios to Channel 2\n";
+
+						midiAvailable = true;
+						break;
+					}
+					else {
+						cout << "Invalid port number. Number of available ports: " << midiOut.getNumOutPorts() << endl;
+						printf("Select Midi Out Port number (0 to %d):\n", midiOut.getNumOutPorts() - 1);
+						midiOut.listOutPorts();
+
+					}
 				}
 			}
-		}
-	}
-	int port;
-	if (midiAvailable == false || LoopBeLoopMidi == 2) {
-		midiOut.listPorts();
-		//printf("Select one of the following midi ports for midi out. Any other number for no midiOUT:\n");
-		
-		/*for (int i = 0; i < midiOut.getNumPorts(); i++) 
-			printf("%d. %s\n", i,midiOut.getPortName(i).c_str());
-		cin >> port;*/
-		fflush(stdin);
-		//if (port >= 0 && port < midiOut.getNumPorts()) {
-		if(midiOut.getNumPorts()>0){
-			midiOut.openPort(0);
-			cout << "\nConnected to " << midiOut.getPortName(0) << ".\nSending melodies to channel 1 and arpeggios to channel 2\n";
-			midiAvailable = true;
-		}
-		else {
-			cout << "MidiOUT disabled\n";
-			tomidi = false;
-		}
-	}
+			else {
+				cout << "MidiOUT disabled\n";
+				tomidi = false;
 
-	if (breath) {
-		midiIn.listPorts();
-		printf("Select midi IN (breath sensor) device (number 0 to %d): ", midiIn.getNumPorts() - 1);
-		cin >> port;
-		if (port >= 0 && port < midiIn.getNumPorts())
-			midiIn.openPort(port);
-		else
-			printf("Wrong number given!\n");
-		printf("midi In connected\n");/*
-		midiIn.addListener(this);
-		midiIn.setVerbose(true);*/
-	}
+			}
+		}
+	
+	//printf("Select Midi Port:\n");
+
+	//midiOut.listOutPorts();
+	//int temp;
+	//scanf("%d", &temp);
+	//midiOut.openPort(temp);
+	//midiAvailable = true;
+	////if (breath) {
+	//	midiIn.listPorts();
+	//	printf("Select midi IN (breath sensor) device (number 0 to %d): ", midiIn.getNumPorts() - 1);
+	//	cin >> port;
+	//	if (port >= 0 && port < midiIn.getNumPorts())
+	//		midiIn.openPort(port);
+	//	else
+	//		printf("Wrong number given!\n");
+	//	printf("midi In connected\n");/*
+	//	midiIn.addListener(this);
+	//	midiIn.setVerbose(true);*/
+	//}
     chord=chordsONOFF;
 	eye.setup(&chord,Scale,&(configure.value), discNotesNumber,tomidi,semitoneActive);
 
@@ -123,14 +124,14 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
     masterVolume.setup("Volume",150, stepPosUP,stepPosDW,0,1,0.045f,500,20,.9f,.1f,.0f);
 	melody_midi = 1;
 	if (variables::alperMode) {
-		transpose.setup("Transp", ofPoint(1.62, 0.5), ofPoint(1.3, 0.5), -5, 6, trans, 1, 0.07f, 800, 0.6f, 0.2f, 0.0f, false);
+		transpose.setup("Transp", ofPoint(1.62, 0.5), ofPoint(1.3, 0.5), -12, 12, trans, 1, 0.07f, 800, 0.6f, 0.2f, 0.0f, false);
 		melodyMidi.setup("midiChannel", ofPoint(1.62f, -0.85f), ofPoint(1.3f, -0.85f), 1, 16, melody_midi, 1, 0.07, 800, 0.6, 0.2, 0, false);
 	}
 	else {
-		transpose.setup("Transp", ofPoint(1.64, 0.4), ofPoint(1.32, 0.4), -5, 6, trans, 1, 0.07f, 800, 0.6f, 0.2f, 0.0f, false);
+		transpose.setup("Transp", ofPoint(1.64, 0.4), ofPoint(1.32, 0.4), -12, 12, trans, 1, 0.07f, 800, 0.6f, 0.2f, 0.0f, false);
 		melodyMidi.setup("midiChannel", ofPoint(-1.6, 0.2), ofPoint(-1.6, -0.2), 1, 16, melody_midi, 1, 0.09, 800, 0.6, 0.2, 0, false);
 	}
-
+	variables::transpose = &(transpose.value);
 	if(variables::alperMode)
 		harmonize.setup("Harmonize", ofPoint(-1.3, 0.85), ofPoint(-1.62, 0.85), -1, 3, variables::harmonize, 1, 0.07f, 800, 0.6, 0.2, false);
 	else
@@ -141,9 +142,7 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
 	focusPoints.setup("FocusPoints",false,ofPoint(1.6,0.85),0.08,800,.8,.4,0,false);
 	sequencerMidi.setup("midiChannel", ofPoint(-1.6, 0.2), ofPoint(-1.6, -0.2), 1, 16, sequencerNote::sequencer_midi, 1, 0.09, 800, 0.6, 0.2, 0, false);
 	int initScale[7];
-	for (int i = 0; i < 7; i++)
-		initScale[i] = variables::presetScales[0].scaleNotes[i];
-	variables::notesPerScale = variables::presetScales[0].size;
+
 	Scale[0].setup("I",eye.harmonic[0].posUP_,eye.harmonic[0].posDW_,-1,1,initScale[0],1,eye.Msize,500,0.5,0.2,0.0);
     Scale[1].setup("II",eye.harmonic[1].posUP_,eye.harmonic[1].posDW_,1,3, initScale[1],1, eye.Msize,500,0.5,0.2,0.0);
     Scale[2].setup("III",eye.harmonic[2].posUP_,eye.harmonic[2].posDW_,3,5, initScale[2],1, eye.Msize,500,0.5,0.2,0.0);
@@ -169,18 +168,23 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
 	for (int i = 0; i < variables::presetScales.size(); i++) {
 		strcpy(musicalModesNames[i], variables::presetScales[i].name);
 	}
-	/*musicalModesNames[0] = "Major";
-	musicalModesNames[1] = "Minor";
-	musicalModesNames[2] = "Hitzaz";
-	musicalModesNames[3] = "Hitzaz\nskiar";
-	musicalModesNames[4] = "Dorian";
-	musicalModesNames[5] = "Phrygian";
-	musicalModesNames[6] = "Myxolydian";
-	musicalModesNames[7] = "Myxolydian";*/
 	float tempSize = 0.34f / variables::presetScales.size();
 	if (tempSize > 0.09)
 		tempSize = 0.09;
-	musicalModes.setup(variables::presetScales.size(), musicalModesNames, 0, ofPoint(-1.6, -1.07), HALF_PI, tempSize, 1000);
+
+		
+	if (variables::alperMode == 2)
+		musicalModes.setup(variables::presetScales.size(), musicalModesNames, 0, ofPoint(1.6, -1.15), HALF_PI, tempSize*1.45f, 1000);
+	else
+		musicalModes.setup(variables::presetScales.size(), musicalModesNames, 0, ofPoint(-1.6, -1.07), HALF_PI, tempSize, 1000);
+
+	for (int i = 0; i < 7; i++)
+		eye.scale[i].value = variables::presetScales[musicalModes.selected].scaleNotes[i];
+	variables::notesPerScale = variables::presetScales[musicalModes.selected].size;
+	*variables::transpose = variables::presetScales[musicalModes.selected].transpose;
+	*variables::octave = variables::presetScales[musicalModes.selected].octave;
+	*variables::pieSize = variables::presetScales[musicalModes.selected].pieSize;
+	variables::firstNote = variables::presetScales[musicalModes.selected].firstNote;
 
 	layer.setup("Layer", 0, ofPoint(1.58, -0.79), 0.1, 800, 0.6, 0.2, 0.1, false);
 
@@ -336,9 +340,12 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 					midiOut.sendNoteOff(melody_midi, midinote[0], 0);
 					midiOut.sendNoteOff(melody_midi, midinote[0] + 7, 0);
 				}
-				else
+				else {
 					for (int i = 0; i <= variables::harmonize; i++)
 						midiOut.sendNoteOff(melody_midi, midinote[i], 0);
+				
+					
+				}
 				melody_midi = melodyMidi.value;
 			}
 		}
@@ -346,7 +353,7 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 			exit.setup("QUIT", false, ofPoint(1.1, 0.8), 0.1, 1000, 0, 0, 0, false);
 			exit.resized(width, height);
 		}
-		if(variables::alperMode && eye.disc.notesONOFF.value)
+		if(variables::alperMode==1 && eye.disc.notesONOFF.value)
 			configureAlper.update(gaze);
 		if (configureAlper.changed)
 			variables::alperConfigureActive = configureAlper.value;
@@ -355,13 +362,17 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 			fullScreen.update(gaze);
 			if (!variables::alperMode)
 				exit.update(gaze);
-			if (variables::alperMode && configureAlper.value)
+			if (variables::alperMode && eye.disc.notesONOFF.value/* && configureAlper.value*/)
 				musicalModes.update(gaze);
 			if (musicalModes.changed) {
 				for (int i = 0; i < 7; i++)
 					eye.scale[i].value = variables::presetScales[musicalModes.selected].scaleNotes[i];
 				variables::notesPerScale = variables::presetScales[musicalModes.selected].size;
-				eye.scale[0].changed = true;
+				*variables::transpose = variables::presetScales[musicalModes.selected].transpose;
+				*variables::octave = variables::presetScales[musicalModes.selected].octave;
+				*variables::pieSize = variables::presetScales[musicalModes.selected].pieSize;
+				variables::firstNote = variables::presetScales[musicalModes.selected].firstNote;
+
 
 			}
 			if (fullScreen.changed) {
@@ -394,13 +405,18 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 		else {
 			if (variables::record_chords)
 				chordLoop.button.update(gaze);
-			if ((variables::alperMode && configureAlper.value)) {
+			if ((variables::alperMode && eye.disc.notesONOFF.value/*&& configureAlper.value*/)) {
 				//if (presetscale) {
 				musicalModes.update(gaze);
 				if (musicalModes.changed) {
 					for (int i = 0; i < 7; i++)
 						eye.scale[i].value = variables::presetScales[musicalModes.selected].scaleNotes[i];
 					variables::notesPerScale = variables::presetScales[musicalModes.selected].size;
+					*variables::transpose = variables::presetScales[musicalModes.selected].transpose;
+					*variables::octave = variables::presetScales[musicalModes.selected].octave;
+					*variables::pieSize = variables::presetScales[musicalModes.selected].pieSize;
+					variables::firstNote = variables::presetScales[musicalModes.selected].firstNote;
+
 					/*switch (musicalModes.selected) {
 					case 0:
 						eye.scale[0].value = 0;
@@ -475,7 +491,6 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 						eye.scale[6].value = 10;
 						break;
 					}*/
-					eye.scale[0].changed = true;
 				}
 			}
 			/*else {
@@ -677,23 +692,23 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 				if (cc11) midiOut.sendControlChange(melody_midi, 11, tempVol);
 				if (afterTouch) midiOut.sendAftertouch(melody_midi, tempVol);
 			}
-			if (noteDuration > 0.2f * variables::framerate) {
-				//cout << noteDuration << endl;
-				int temp= (float)velocity / (float)ofGetScreenWidth()*1000.f*0.1f + 0.9f*modulationSpeed;
-				if (temp != modulationSpeed) {
-					modulationSpeed = temp;
-					if (modulationSpeed < 127)
-						midiOut.sendControlChange(melody_midi, 1, modulationSpeed);
-					else if (modulationSpeed < 200)
-						midiOut.sendControlChange(melody_midi, 1, 127);
-				}
-			}
-			else {
-				if (modulationSpeed != 0) {
-					midiOut.sendControlChange(melody_midi, 1, 0);
-					modulationSpeed = 0;
-				}
-			}
+			//if (noteDuration > 0.2f * variables::framerate) {
+			//	//cout << noteDuration << endl;
+			//	int temp= (float)velocity / (float)ofGetScreenWidth()*1000.f*0.1f + 0.9f*modulationSpeed;
+			//	if (temp != modulationSpeed) {
+			//		modulationSpeed = temp;
+			//		if (modulationSpeed < 127)
+			//			midiOut.sendControlChange(melody_midi, 1, modulationSpeed);
+			//		else if (modulationSpeed < 200)
+			//			midiOut.sendControlChange(melody_midi, 1, 127);
+			//	}
+			//}
+			//else {
+			//	if (modulationSpeed != 0) {
+			//		midiOut.sendControlChange(melody_midi, 1, 0);
+			//		modulationSpeed = 0;
+			//	}
+			//}
 			if(eye.disc.changed){
 				noteDuration = 0;
 				midiOut.sendControlChange(melody_midi, 1, 0);
@@ -819,16 +834,20 @@ void EyeHarp::audioRequested(float * output, int bufferSize, int nChannels) {
 void EyeHarp::draw() {
 	if (!layer.value) {
 		eye.draw();
-		if (variables::alperMode) {
+		if (variables::alperMode == 1) {
 			configureAlper.draw();
+
+			musicalModes.draw();
 			if (configureAlper.value) {
-				musicalModes.draw();
 				showSemitones.draw();
 				fullScreen.draw();
 				melodyMidi.draw();
 				transpose.draw();
 				harmonize.draw();
 			}
+		}
+		else if (variables::alperMode == 2) {
+			musicalModes.draw();
 		}
 		else if (configure.value ) {
 			showSemitones.draw();
@@ -944,24 +963,24 @@ void EyeHarp::keyPressed(int key){
 	stepSeq.keyPressed(key);
 	if (variables::record_chords) chordLoop.keyPressed(key);
 }
-
-void EyeHarp::newMidiMessage(ofxMidiMessage& msg) {
-	// make a copy of the latest message
-	midiMessage = msg;
-	int sensitivity = 3;
-	int thr = 50;
-	if (msg.status == MIDI_CONTROL_CHANGE || msg.status == MIDI_AFTERTOUCH || msg.status == MIDI_POLY_AFTERTOUCH) {
-		breath = msg.value * 3;
-		if (breath > 127)
-			breath = 127;
-		if (breath < thr) {
-			midiOut.sendNoteOff(1, eye.disc.note, 0);
-			
-		}
-		else {
-			midiOut.sendControlChange(1, 7, breath);
-				midiOut.sendNoteOn(1, eye.disc.note, breath);
-		}
-	}
-	
-}
+//
+//void EyeHarp::newMidiMessage(ofxMidiMessage& msg) {
+//	// make a copy of the latest message
+//	midiMessage = msg;
+//	int sensitivity = 3;
+//	int thr = 50;
+//	if (msg.status == MIDI_CONTROL_CHANGE || msg.status == MIDI_AFTERTOUCH || msg.status == MIDI_POLY_AFTERTOUCH) {
+//		breath = msg.value * 3;
+//		if (breath > 127)
+//			breath = 127;
+//		if (breath < thr) {
+//			midiOut.sendNoteOff(1, eye.disc.note, 0);
+//			
+//		}
+//		else {
+//			midiOut.sendControlChange(1, 7, breath);
+//				midiOut.sendNoteOn(1, eye.disc.note, breath);
+//		}
+//	}
+//	
+//}

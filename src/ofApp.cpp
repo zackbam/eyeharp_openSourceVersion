@@ -3,8 +3,8 @@
 #include "stdio.h"
 #include "EyeHarpVARS.h"
 //global variables .......
-bool variables::alperMode, variables::record_chords, variables::triggerChords, variables::alperConfigureActive;
-int variables::firstNote, variables::notesPerScale, variables::harmonize,variables::textColor, variables::windowH, variables::windowW, variables::inReleaseFIXVEL;
+bool  variables::record_chords, variables::triggerChords, variables::alperConfigureActive, variables::internalSound,variables::promptMidiPort=0;
+int variables::alperMode, variables::firstNote, *variables::transpose, *variables::octave, *variables::pieSize, variables::notesPerScale, variables::harmonize,variables::textColor, variables::windowH, variables::windowW, variables::inReleaseFIXVEL;
 int variables::trNotesMidi[3];
 float variables::framerate;
 ofTrueTypeFont variables::myfont, variables::myfontPie;
@@ -18,7 +18,6 @@ ofApp::ofApp(){
 ofApp::~ofApp(){
 	fclose(record);
 	myTobii.~tobii();
-	tribe.~MyGaze();
 	HARP.~EyeHarp(); 
 }
 
@@ -51,7 +50,7 @@ void ofApp::setup(){
 	variables::textColor = 180;
 	variables::windowH = 450;
 	variables::windowW = 800;
-
+	variables::internalSound = false;
 	if (initParam == NULL)
 		cout << "No eyeharp.txt file found\n";
 	else {
@@ -140,7 +139,10 @@ void ofApp::setup(){
 				variables::alperMode = temp;
 			else if (strcmp(paramName, "framerate") == 0)
 				variables::framerate = temp;
-			
+			else if (strcmp(paramName, "internalSound") == 0)
+				variables::internalSound = temp; 
+			else if (strcmp(paramName, "promptMidiPort") == 0)
+				variables::promptMidiPort = temp;
 			else if (strcmp(paramName, "scale") == 0)
 			{
 				tempScale.scaleNotes[0] = temp;
@@ -150,15 +152,16 @@ void ofApp::setup(){
 					fscanf(initParam, "%d%c", &tempScale.scaleNotes[i++], &nl);
 				}
 				tempScale.size = i;
+				fscanf(initParam, "%d %d %d %d %c", &tempScale.octave, &tempScale.transpose, &tempScale.pieSize, &tempScale.firstNote, &nl);
 				fscanf(initParam,"%s", tempScale.name);
 				variables::presetScales.push_back(tempScale);
 			}
 		}
 		fclose(initParam);
 	}
-	/*for (int i = 0; i < variables::presetScales.size(); i++)
-		printf("%s %d %d %d %d %d %d %d\n", variables::presetScales[i].name, variables::presetScales[i].scaleNotes[0], variables::presetScales[i].scaleNotes[1], variables::presetScales[i].scaleNotes[2], variables::presetScales[i].scaleNotes[3], variables::presetScales[i].scaleNotes[4], variables::presetScales[i].scaleNotes[5], variables::presetScales[i].scaleNotes[6]);
-	*///printf("cc1 %d\ncc2 %d\ncc7 %d\ncc11 %d\ncafterTouch %d\n", cc1, cc2, cc7, cc11, afterTouch);
+	for (int i = 0; i < variables::presetScales.size(); i++)
+		printf("%s %d %d %d\n", variables::presetScales[i].name, variables::presetScales[i].octave, variables::presetScales[i].transpose, variables::presetScales[i].pieSize);
+	//printf("cc1 %d\ncc2 %d\ncc7 %d\ncc11 %d\ncafterTouch %d\n", cc1, cc2, cc7, cc11, afterTouch);
 	gbuffer = new ofPoint[fixationSamples];
 	Switch::click = !clickDwell;
 	//printf("discNotesNumber: %d\nstepSequencerNotesNumber: %d\nbufferSize: %d\nchordsONOFF: %d\nshowScale: %d\nmouseEyetribeInput: %d\nclickDwell: %d\nfullscreen: %d", discNotesNumber, stepSequencerNotesNumber, bufferSize, chordsONOFF, showScale, mouseEyetribeInput, clickDwell,fullscreen);
@@ -177,14 +180,14 @@ void ofApp::setup(){
 	/*if (showGaze)
 		ofHideCursor();*/
 	HARP.stepSeq.monophonic.setup("monophonic", monophonic, ofPoint(-1.2, 0.8), .095, 800, .8, .4, 0, false);
-	tribe.setup();
 	myTobii.setup();
 	HARP.eye.disc.inRelease = inRelease;
 	printf("Sound Devices:\n");
-	//ofSoundStreamListDevices();
-	soundstream.printDeviceList();
-	soundstream.setup(this, 2, 0, SAMPLERATE, bufferSize, 4);
-	
+	if (variables::internalSound) {
+		ofSoundStreamListDevices();
+		soundstream.printDeviceList();
+		soundstream.setup(this, 2, 0, SAMPLERATE, bufferSize, 4);
+	}
 	mouseDwell=0;
 	printf("\nPress Esc to exit when the EyeHarp window is active or Ctrl+c in the current terminal\n");
 	//showCircle=true;
@@ -232,24 +235,7 @@ void ofApp::update(){
 	}
 	else{
 		if (gaze) {
-			if (tribe.m_api.is_connected()) {
-				tracker = EYETRIBE;
-				tribe.m_api.get_frame(gdata);
-				//if (gdata.raw.x > ofGetWindowPositionX() && gdata.raw.x<ofGetWindowPositionX() + ofGetWidth() && gdata.raw.y>ofGetWindowPositionY() && gdata.raw.y < ofGetWindowPositionY() + ofGetHeight()) {
-				
-				if (gdata.state == 7){
-					raw.x = gdata.raw.x/**ratiox*/;
-					raw.y = gdata.raw.y/**ratioy*/;
-				}
-
-				mySmooth();
-				int X = smooth.x - ofGetWindowPositionX();
-				int Y = smooth.y - ofGetWindowPositionY();
-				eyeSmoothed = ofPoint(X,Y);
-				eyeSmoothed = ofPoint(smooth.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
-
-			}
-			else if (myTobii.success) {
+			if (myTobii.success) {
 				if (myTobii.eventParams.Timestamp != 0) {
 					/*cout << myTobii.eventParams.Timestamp << endl;
 					*/
@@ -262,11 +248,10 @@ void ofApp::update(){
 					static uint64_t lastValidTime = ofGetElapsedTimeMillis();
 
 					static bool EyesDetected= true;
-					//cout << raw.x << "," << myTobii.eventParams.X << endl;
 					if (raw.x != (float)myTobii.eventParams.X && raw.y != (float)myTobii.eventParams.Y) {
 						raw.x = myTobii.eventParams.X;
 						raw.y = myTobii.eventParams.Y;
-						if (EyesDetected == false) {//if before eyes were not detected
+						if (EyesDetected == false) {//if previously eyes were not detected
 							for (int i = 0; i < fixationSamples; i++) {
 								gbuffer[i] = raw;
 							}
@@ -277,13 +262,16 @@ void ofApp::update(){
 						eyeSmoothed = ofPoint(smooth.x - ofGetWindowPositionX(), smooth.y - ofGetWindowPositionY());
 						EyesDetected = true;
 					}
-					else if (ofGetElapsedTimeMillis() - lastValidTime > 500 && EyesDetected) {
+					else if (ofGetElapsedTimeMillis() - lastValidTime > 200 /*&& EyesDetected*/) {
+						/*raw = { -1,-1 };*/
 						sacadic = true;
-						SetCursorPos(ofGetWindowPositionX() + 1, ofGetWindowPositionY() + 1);
+						if(EyesDetected)
+							SetCursorPos(ofGetWindowPositionX() + ofGetWindowWidth(), ofGetWindowPositionY() + 1);
 						EyesDetected = false;
 						eyeSmoothed = ofPoint(mousex, mousey);
 					}
-					 
+					//cout << raw.y << "," << myTobii.eventParams.Y << endl;
+
 					//}
 					//SetCursorPos(smooth.x, smooth.y);
 				}
@@ -313,7 +301,7 @@ void ofApp::update(){
 
 void ofApp::mySmooth(){
 	//cout<<gdata.state<<'\n';
-	if (tracker == TOBII || (tracker == EYETRIBE && gdata.state == 7)) {
+	if (tracker == TOBII ) {
 		if (fixationSamples < 2)
 			smooth = raw;
 		else {
@@ -325,7 +313,6 @@ void ofApp::mySmooth(){
 				}
 				else {
 					smooth = avgNew;
-					cout << "F";
 				}
 			}
 			prFixation = fix;

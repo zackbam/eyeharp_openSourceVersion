@@ -14,17 +14,21 @@ typedef struct {
 	int scaleNotes[7];
 	int size;
 	char name[50];
+	int transpose, octave,pieSize,firstNote;
 }sscale;
 class variables {
 public:
-	static bool alperMode, record_chords, triggerChords;
-	static int firstNote, notesPerScale, harmonize,windowH,windowW;
+	static bool record_chords, triggerChords,internalSound,promptMidiPort;
+	static int alperMode, firstNote, notesPerScale, harmonize,windowH,windowW;
 	static std::vector<sscale> presetScales;
 	static int trNotesMidi[3];
 	static bool alperConfigureActive;
 	static ofTrueTypeFont myfont;
 	static ofTrueTypeFont myfontPie;
 	static int textColor;
+	static int* transpose;
+	static int* octave;
+	static int* pieSize;
 	static int inReleaseFIXVEL;
 	static float framerate;
 };

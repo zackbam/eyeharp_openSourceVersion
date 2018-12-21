@@ -156,3 +156,15 @@
 /bin/EyeHarpVS.exp
 /bin/EyeHarpVS.exe
 /bin/eyeharpD.txt
+/.vs/emptyExample/v15/ipch/AutoPCH
+/.vs/emptyExample/v15
+/.vs/EyeHarp
+/.vs
+/bin/data
+/bin/EyeHarp.exe
+/bin/EyeHarp.lib
+/bin/EyeHarp.exp
+/obj
+/EyeHarp.VC.db
+/EyeHarp.vcxproj.filters
+/EyeHarp.vcxproj.user
