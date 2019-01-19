@@ -589,16 +589,16 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 
                                 if(prDist<eye.disc.dist){
                                     distVol=(MINVOL+(1-MINVOL)*((float)(eye.disc.dist-eye.disc.neutralRegion)/(height/2-eye.disc.neutralRegion)));
-									if (eye.disc.semi)
-										distVol = (distVol - 0.4)*1.4;
+									/*if (eye.disc.semi)
+										distVol = (distVol - 0.4)*1.4;*/
                                     targetVolume=eye.volume.value*distVol;
                                     volumeChanged=true;
                                 }
                                 else{
                                     if(velocity<eye.disc.FIXVEL){
 										distVol=(MINVOL+(1-MINVOL)*((float)(eye.disc.dist-eye.disc.neutralRegion)/(height/2-eye.disc.neutralRegion)));
-										if (eye.disc.semi)
-											distVol = (distVol - 0.4)*1.4f;
+										/*if (eye.disc.semi)
+											distVol = (distVol - 0.4)*1.4f;*/
 										targetVolume=eye.volume.value*distVol;
                                         volumeChanged=true;
                                     }

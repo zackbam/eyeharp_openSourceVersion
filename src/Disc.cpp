@@ -122,14 +122,15 @@ void Disc::update(ofPoint gaze, float* velocity,bool *sacadic){
 		if (*velocity < FIXVEL && semitoneActive && variables::notesPerScale == 7) {
 			semiActive = -1;
 			for (int j = 0; j < NotesNumber.value - 7*chordONOFF.value; j++) {
-				ofPoint curPosSemitone = ofPoint(width2 - cos((j)*tangle)*radius, height2 + sin((j)*tangle)*radius);
-
 				int ii = (j + variables::firstNote) % variables::notesPerScale;
 				//if ((ii == 2 || ii == 3 || ii == 5 || ii == 6 || ii == 0) && j != 0) {
 				int tempDif = (*scale[ii] - *scale[(ii + 6) % variables::notesPerScale]);
 				if ((tempDif> 1 || (tempDif < 0 && tempDif>-11)) && j != 0) {
-					if (ofDist(gaze.x, gaze.y, curPosSemitone.x, curPosSemitone.y) < tangle*SemiSize /*&& *velocity < FIXVEL*/) {
-						semiActive = j;
+					//if (ofDist(gaze.x, gaze.y, curPosSemitone.x, curPosSemitone.y) < tangle*SemiSize /*&& *velocity < FIXVEL*/) {
+					//	semiActive = j;
+					
+					if (angle>=(j - 0.25f)*tangle && angle <= (j+0.25f)*tangle && dist >= radius * 0.9f&& dist <= radius * 1.2f) {
+							semiActive = j;
 						//cout << semiActive << endl;
 					}
 				}
@@ -156,6 +157,8 @@ void Disc::update(ofPoint gaze, float* velocity,bool *sacadic){
 				//inside = false;
 			}
 		}
+		if (semi)
+			dist -= radius * 0.5f - neutralRegion;
 		//cout << semi;
 		//if(advanced){
 		//	//chordONOFF.update(gaze);
@@ -403,23 +406,33 @@ void Disc::draw(){
 	
     for(int i=0;i<NotesNumber.value;i++){
 		ofPoint curPos = ofPoint(width2 - cos((i + 0.5)*tangle)*inSpotDist, height2 + sin((i + 0.5)*tangle)*inSpotDist);
+		ofPoint curPosSemi[4]; 
 		ofPoint curPosSemitone = ofPoint(width2 - cos((i)*tangle)*radius, height2 + sin((i)*tangle)*radius);
+
+		curPosSemi[0] = ofPoint(width2 - cos((i + 0.25f)*tangle)*radius*0.9f, height2 + sin((i + 0.25f)*tangle)*radius*0.9f);
+		curPosSemi[1] = ofPoint(width2 - cos((i - 0.25f)*tangle)*radius*0.9f, height2 + sin((i - 0.25f)*tangle)*radius*0.9f);
+		curPosSemi[3] = ofPoint(width2 - cos((i + 0.25f)*tangle)*radius*1.2f, height2 + sin((i + 0.25f)*tangle)*radius*1.2f);
+		curPosSemi[2] = ofPoint(width2 - cos((i - 0.25f)*tangle)*radius*1.2f, height2 + sin((i - 0.25f)*tangle)*radius*1.2f);
 		ofPoint SemSpotPos[4];
 		if (semitoneActive && variables::notesPerScale==7) {
 			for (int j = 0; j < 4; j++)
-				SemSpotPos[j] = ofPoint(width2 - cos((i)*tangle)*(radius - tangle*SemiSize*0.6 + tangle * SemiSize*0.4*j), height2 + sin((i)*tangle)*(radius - tangle * SemiSize*0.6 + tangle * SemiSize*0.4*j));
+				SemSpotPos[j] = ofPoint(width2 - cos((i)*tangle)*(radius*(0.95f + j*0.06f)), height2 + sin((i)*tangle)*(radius*(0.95f + j * 0.06f)));
 
 			int ii = (i + variables::firstNote) % variables::notesPerScale;
 			//if ((ii == 2 || ii == 3 || ii == 5 || ii == 6 || ii == 0) && i != 0 && i < NotesNumber.value - 7 * chordONOFF.value) {
 			int tempDif = (*scale[ii] - *scale[(ii + 6) % variables::notesPerScale]);
 			if ((tempDif> 1 || (tempDif < 0 && tempDif>-11)) && i != 0 && i < NotesNumber.value - variables::notesPerScale * chordONOFF.value) {
 
-				ofSetColor(40 + (i == semiActive) * 50);
+				ofSetColor(40);
 				
 				if (testSong.ilumina == i && testSong.melody[testSong.pos].flat) {
 					ofSetColor(255, 20, 20);
 				}
-				ofCircle(curPosSemitone.x, curPosSemitone.y, tangle*SemiSize);
+				//ofCircle(curPosSemitone.x, curPosSemitone.y, tangle*SemiSize);
+				ofBeginShape();
+				for (int ii = 0; ii < 4; ii++)
+					ofVertex(curPosSemi[ii]);
+				ofEndShape();
 				if (!chordONOFF.value && i==semiActive) {
 					ofEnableAlphaBlending();
 					float quedaSamples = (float)stepSequencer::noteSamples * (float)testSong.prDuration - testSong.curDuration;
@@ -429,8 +442,10 @@ void Disc::draw(){
 					else {
 						ofSetColor(testSong.noteProgress * 170, 170);
 					}
-
-					ofCircle(curPosSemitone.x, curPosSemitone.y, tangle*SemiSize);
+					ofBeginShape();
+					for (int ii = 0; ii < 4; ii++)
+						ofVertex(curPosSemi[ii]);
+					ofEndShape();
 					ofDisableAlphaBlending();
 				}
 				ofSetColor(255);
