@@ -39,7 +39,7 @@ void Disc::setup(int NumOfNotes,float red,float green,float blue,int * Chord, bo
     outSpotStep=(ofGetHeight()/2-neutralRegion)/5;
     inSpotDist=0.6*neutralRegion;
 	if(variables::alperMode)	
-		chordONOFF.setup("Chords", *chord, ofPoint(1.62, -0.15), 0.07, 1000, 0.6, 0.2, 0.1, false);
+		chordONOFF.setup("Chords", *chord, ofPoint(-1.6, -0.87), 0.07, 1000, 0.6, 0.2, 0.1, false);
 	else
 		chordONOFF.setup("Chords", *chord, ofPoint(-1, -0.8), 0.1, 1000, 0.6, 0.2, 0.1, false);
     percussive.setup("Percu\nssive",false, ofPoint(-1.2,0.85),0.05,1000,0.6,0.2,0.1,false);
@@ -113,7 +113,7 @@ void Disc::update(ofPoint gaze, float* velocity,bool *sacadic){
 		dist=ofDist(gaze.x,gaze.y,width2,height2);
 		if(variables::alperMode && !variables::alperConfigureActive)
 			notesONOFF.update(gaze);
-		if(*conf/*|| variables::alperMode*/)
+		if(*conf || variables::alperConfigureActive)
 			chordONOFF.update(gaze);
 		if(*velocity < FIXVEL && dist < neutralRegion){
 			fixationInNeutral=true;
@@ -695,8 +695,8 @@ void Disc::draw(){
 	
 	if (variables::alperMode && !variables::alperConfigureActive)
 		notesONOFF.draw();
-	// chordONOFF.draw();
-	 if(*conf/*||variables::alperMode*/)
+	//chordONOFF.draw();
+	 if(*conf || variables::alperConfigureActive)
 		chordONOFF.draw();
 		 //distVolume.draw();
 	 //if(!inside)

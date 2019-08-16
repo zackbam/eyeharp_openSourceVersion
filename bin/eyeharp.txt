@@ -30,7 +30,7 @@ replaySame 1
 replayFadeOut 500
 numberNote 0
 firstNote 4
-recordChords 0
+recordChords 1
 alperMode 1
 internalSound 0
 scale 0 2 4 5 7 9 11,2 0 12 4,DoMajor

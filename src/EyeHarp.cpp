@@ -168,7 +168,7 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
 	for (int i = 0; i < variables::presetScales.size(); i++) {
 		strcpy(musicalModesNames[i], variables::presetScales[i].name);
 	}
-	float tempSize = 0.34f / variables::presetScales.size();
+	float tempSize = 0.25f / variables::presetScales.size();
 	if (tempSize > 0.09)
 		tempSize = 0.09;
 
@@ -176,7 +176,7 @@ void EyeHarp::setup(int discNotesNumber, int stepSequencerNotesNumber, bool chor
 	if (variables::alperMode == 2)
 		musicalModes.setup(variables::presetScales.size(), musicalModesNames, 0, ofPoint(1.6, -1.15), HALF_PI, tempSize*1.45f, 1000);
 	else
-		musicalModes.setup(variables::presetScales.size(), musicalModesNames, 0, ofPoint(-1.6, -1.07), HALF_PI, tempSize, 1000);
+		musicalModes.setup(variables::presetScales.size(), musicalModesNames, 0, ofPoint(-1.6, -0.8), HALF_PI, tempSize, 1000);
 
 	for (int i = 0; i < 7; i++)
 		eye.scale[i].value = variables::presetScales[musicalModes.selected].scaleNotes[i];
@@ -223,7 +223,7 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 	float prTargetVolume = targetVolume;
 	prGaze=gaze;
     gaze=Gaze;
-	if (!variables::alperMode) {
+	if (!variables::alperMode || layer.value==1) {
 		configure.update(gaze, sacadic);
 		layer.update(gaze);
 	}
@@ -357,6 +357,8 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 			configureAlper.update(gaze);
 		if (configureAlper.changed)
 			variables::alperConfigureActive = configureAlper.value;
+		if (!configureAlper.value && variables::alperMode)
+			layer.update(gaze);
 		if (configure.value || (variables::alperMode && configureAlper.value)) {
 
 			fullScreen.update(gaze);
@@ -834,6 +836,7 @@ void EyeHarp::audioRequested(float * output, int bufferSize, int nChannels) {
 void EyeHarp::draw() {
 	if (!layer.value) {
 		eye.draw();
+
 		if (variables::alperMode == 1) {
 			configureAlper.draw();
 
@@ -844,6 +847,10 @@ void EyeHarp::draw() {
 				melodyMidi.draw();
 				transpose.draw();
 				harmonize.draw();
+			}
+			else {
+				layer.draw();
+				if (variables::record_chords) chordLoop.draw();
 			}
 		}
 		else if (variables::alperMode == 2) {
@@ -891,8 +898,6 @@ void EyeHarp::draw() {
 		else {
 			sequencerMidi.draw();
 		}
-	}
-	if (!variables::alperMode) {
 		layer.draw();
 		configure.draw();
 	}
