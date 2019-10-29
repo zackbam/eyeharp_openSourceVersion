@@ -16,7 +16,8 @@ ofApp::ofApp(){
 }
 
 ofApp::~ofApp(){
-	fclose(record);
+	if (record != NULL)
+		fclose(record);
 	myTobii.~tobii();
 	HARP.~EyeHarp(); 
 }
