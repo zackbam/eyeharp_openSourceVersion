@@ -47,6 +47,7 @@ class Switch{
     protected:
         uint64_t FC;
         float dwell;
+		float dwellFraction; // from 0 to 1
 		int height;
 		int width;
         int height2;

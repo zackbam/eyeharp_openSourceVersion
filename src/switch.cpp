@@ -71,7 +71,8 @@ void Switch::update(ofPoint gazee){
 			if (active == false) //if in the previous framewe were out
 				FC = ofGetElapsedTimeMillis();//save the starting time
 			active=true;
-			if(ofGetElapsedTimeMillis() - FC >= dwell && !lock && !click) {
+			dwellFraction = (ofGetElapsedTimeMillis() - FC) / dwell;
+			if(dwellFraction > 1.0 && !lock && !click) {
 				value=!value;
 				FC = ofGetElapsedTimeMillis();
 				changed=true;
