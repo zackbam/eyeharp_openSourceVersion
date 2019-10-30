@@ -31,5 +31,6 @@ public:
 	static int* pieSize;
 	static int inReleaseFIXVEL;
 	static float framerate;
+	static float dwellColourDiff; 
 };
 #endif

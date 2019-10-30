@@ -80,6 +80,7 @@ void Switch::update(ofPoint gazee){
 		}
 		else{
 			active=false;
+			dwellFraction = 0.0f;
 			FC = ofGetElapsedTimeMillis();
 		}
 	}
@@ -115,6 +116,7 @@ void Switch::update(ofPoint gazee,bool*sacadic){
 		}
 	}
 	if(click){
+		dwellFraction = 0.0f;
 		changed=false;
 		if(ofDist(gaze.x,gaze.y,magPos.x,magPos.y)<size && (size>orSize || !eagleEnable))
 		{
@@ -136,7 +138,8 @@ void Switch::update(ofPoint gazee,bool*sacadic){
 			if (active == false) //if in the previous framewe were out
 				FC = ofGetElapsedTimeMillis();//save the starting time
 			active = true;
-			if (ofGetElapsedTimeMillis() - FC >= dwell && !lock && !click) {
+			dwellFraction = (ofGetElapsedTimeMillis() - FC) / dwell;
+			if (dwellFraction > 1.0 && !lock && !click) {
 				value = !value;
 				FC = ofGetElapsedTimeMillis();
 				changed = true;
@@ -144,6 +147,7 @@ void Switch::update(ofPoint gazee,bool*sacadic){
 		}
 		else {
 			active = false;
+			dwellFraction = 0.0f;
 			FC = ofGetElapsedTimeMillis();
 		}
 	}
@@ -220,6 +224,18 @@ void Switch::draw(){
 	else            ofSetColor(255,255,255);
 
 	ofCircle(magPos.x,magPos.y,pointsize);
+
+	// Centralised dwell feedback
+	if (active && !lock && !magnified) {
+		float delta = variables::dwellColourDiff;
+		if (!value)  ofSetColor(R * 30 + delta, G * 30 + delta, B * 30 + delta);
+		else        ofSetColor(R * 255 + delta, G * 255 + delta, B * 255 + delta);		
+		if (Switch::click) 
+			ofCircle(magPos.x, magPos.y, (float)size*.5f);
+		else
+			ofCircle(magPos.x, magPos.y, (float)size*(1.0f - dwellFraction));
+	}
+
 	if(focuspoints){
 		if(/*(fishEye && eagleEnable) ||*/ ofDist(gaze.x,gaze.y,magPos.x,magPos.y)< size ){
 			ofCircle(magPos.x+per,magPos.y,pointsize);

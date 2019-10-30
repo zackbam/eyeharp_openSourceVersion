@@ -42,8 +42,11 @@ class DistControl{
 		int perDW;
 		int per2DW;
 		bool fishEyeUP;
-		bool fishEyeDW;
-        float dwell; //number of frames to change the value
+		bool fishEyeDW;        
+		float dwellFractionUP = 0.0f; // from 0 to 1
+		float dwellFractionDW = 0.0f; // from 0 to 1
+
+		float dwell; //number of frames to change the value		
         int step; //the step to change values (in the scale of 0-255)
 
         int sizeUP;
