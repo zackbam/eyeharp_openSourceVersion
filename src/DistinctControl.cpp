@@ -68,7 +68,8 @@ void DistControl::update(ofPoint pt){
 			if (activeUP == false) //if in the previous framewe were out
 				FCUP = ofGetElapsedTimeMillis();//save the starting time
 			activeUP=true;
-			if (ofGetElapsedTimeMillis() - FCUP >= dwell) {//if we passed the time
+			dwellFractionUP = (ofGetElapsedTimeMillis() - FCUP) / dwell;
+			if (dwellFractionUP >= 1.0f) {//if we passed the time
 				value+=step;
 				if(value>max) value=max;
 				FCUP= ofGetElapsedTimeMillis();
@@ -76,6 +77,7 @@ void DistControl::update(ofPoint pt){
 			}
 		}
 		else{
+			dwellFractionUP = 0.0f;
 			FCUP = ofGetElapsedTimeMillis();
 			activeUP=false;
 		}
@@ -100,7 +102,8 @@ void DistControl::update(ofPoint pt){
 			if (activeDW == false) //if in the previous framewe were out
 				FCDW = ofGetElapsedTimeMillis();//save the starting time
 			activeDW = true;
-			if (ofGetElapsedTimeMillis() - FCDW >= dwell) {//if we passed the time
+			dwellFractionDW = (ofGetElapsedTimeMillis() - FCDW) / dwell;
+			if (dwellFractionDW >= 1.0f) {//if we passed the time
 				value -= step;
 				if (value<min) value = min;
 				FCDW = ofGetElapsedTimeMillis();
@@ -108,6 +111,7 @@ void DistControl::update(ofPoint pt){
 			}
 		}
 		else {
+			dwellFractionDW = 0.0f;
 			FCDW = ofGetElapsedTimeMillis();
 			activeDW = false;
 		}
@@ -171,9 +175,31 @@ void  DistControl::draw(){
     ofCircle(magPosUP.x,magPosUP.y,sizeUP);
     ofSetColor((255-color)*R,(255-color)*G,(255-color)*B);
     ofCircle(magPosDW.x,magPosDW.y,sizeDW);
+
+
+	// point in middle of UP
     if(activeUP)    ofSetColor(0,255,0);
     else            ofSetColor(255,255,255);
     ofCircle(magPosUP.x,magPosUP.y,pointsize);
+
+	// Centralised dwell feedback
+	if (activeUP) {
+		float delta = variables::dwellColourDiff;
+		ofSetColor(color*R + delta, color*G + delta, color*B + delta);
+		if (Switch::click) 
+			ofCircle(magPosUP.x, magPosUP.y, (float)sizeUP*.5f);		
+		else 
+			ofCircle(magPosUP.x, magPosUP.y, (float)sizeUP*(1.0f - dwellFractionUP));			
+	}
+	if (activeDW) {
+		float delta = variables::dwellColourDiff;
+		ofSetColor((255 - color)*R + delta, (255 - color)*G + delta, (255 - color)*B + delta);
+		if (Switch::click) 
+			ofCircle(magPosDW.x, magPosDW.y, (float)sizeDW*.5f);
+		else
+			ofCircle(magPosDW.x, magPosDW.y, (float)sizeDW*(1.0f - dwellFractionDW));	
+	}
+
 	
 	if(fishEyeUP && EagleEnable){
 		ofCircle(magPosUP.x+perUP,magPosUP.y,pointsize);

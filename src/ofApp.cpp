@@ -6,7 +6,7 @@
 bool  variables::record_chords, variables::triggerChords, variables::alperConfigureActive, variables::internalSound,variables::promptMidiPort=0;
 int variables::alperMode, variables::firstNote, *variables::transpose, *variables::octave, *variables::pieSize, variables::notesPerScale, variables::harmonize,variables::textColor, variables::windowH, variables::windowW, variables::inReleaseFIXVEL;
 int variables::trNotesMidi[3];
-float variables::framerate;
+float variables::framerate, variables::dwellColourDiff;
 ofTrueTypeFont variables::myfont, variables::myfontPie;
 vector<sscale> variables::presetScales;
 
@@ -16,7 +16,8 @@ ofApp::ofApp(){
 }
 
 ofApp::~ofApp(){
-	fclose(record);
+	if (record != NULL)
+		fclose(record);
 	myTobii.~tobii();
 	HARP.~EyeHarp(); 
 }
@@ -51,6 +52,7 @@ void ofApp::setup(){
 	variables::windowH = 450;
 	variables::windowW = 800;
 	variables::internalSound = false;
+	variables::dwellColourDiff = 50;
 	if (initParam == NULL)
 		cout << "No eyeharp.txt file found\n";
 	else {
