@@ -143,8 +143,6 @@
 /emptyExample.sdf
 /emptyExample.opensdf
 /bin/Zlib.dll
-/bin/Tobii.EyeX.Client.lib
-/bin/Tobii.EyeX.Client.dll
 /bin/ssleay32.dll
 /bin/libeay32.dll
 /bin/glut32.dll
