@@ -382,7 +382,7 @@ void EyeHarp::update(ofPoint Gaze,bool *sacadic){
 				resized(variables::windowW, variables::windowH);
 			}
 			showSemitones.update(gaze);
-			harmonize.update(gaze);
+			//harmonize.update(gaze);
 			if (harmonize.changed)
 				variables::harmonize = harmonize.value;
 			if (showSemitones.changed) {
@@ -846,7 +846,7 @@ void EyeHarp::draw() {
 				fullScreen.draw();
 				melodyMidi.draw();
 				transpose.draw();
-				harmonize.draw();
+				//harmonize.draw();
 			}
 			else {
 				layer.draw();

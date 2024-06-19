@@ -27,10 +27,10 @@ void ofApp::setup(){
 	ofSetCircleResolution(40);
 	FILE *initParam;
 	help = true;
-	initParam = fopen("eyeharp.txt", "r");
+	initParam = fopen("bin/eyeharp.txt", "r");
 	char paramName[31];
 	float minVol;
-	int loadSong = 0, discNotesNumber = 13, stepSequencerNotesNumber = 6, bufferSize = 512, transpose = 0, FIXVEL = 70, loopBeLoopMIDI = 0;
+	int loadSong = 0, discNotesNumber = 13, stepSequencerNotesNumber = 6, bufferSize = 256, transpose = 0, FIXVEL = 70, loopBeLoopMIDI = 0;
 	bool replaySame=true,Breath=false,cc1 = 0, cc2 = 0, cc7 = 1, cc11 = 0,afterTouch=0, inRelease = false, semitoneActive = false, showScale = true, scalePreset = true,  chordsONOFF = false, mouseEyetribeInput = false, clickDwell = false, tomidi = false, fullscreen = false, monophonic = true, showGaze = true;
 	int temp;
 	variables::alperMode = false;
@@ -183,12 +183,30 @@ void ofApp::setup(){
 	HARP.stepSeq.monophonic.setup("monophonic", monophonic, ofPoint(-1.2, 0.8), .095, 800, .8, .4, 0, false);
 	myTobii.setup();
 	HARP.eye.disc.inRelease = inRelease;
-	printf("Sound Devices:\n");
-	if (variables::internalSound) {
-		ofSoundStreamListDevices();
-		soundstream.printDeviceList();
-		soundstream.setup(this, 2, 0, SAMPLERATE, bufferSize, 4);
+
+	settings.setOutListener(this);
+	settings.sampleRate = 44100;
+	settings.numOutputChannels = 2;
+	settings.numInputChannels = 0;
+	settings.bufferSize = bufferSize;
+	vector<ofSoundDevice> soundDevices = soundStream.getDeviceList(ofSoundDevice::Api::MS_WASAPI);
+	vector<string>soundDevicesNames;
+	for (int i = 0; i < soundDevices.size(); i++) {
+		if (soundDevices[i].outputChannels > 0) {
+			string temp = soundDevices[i].name + (soundDevices[i].isDefaultOutput ? ":default" : "");
+			soundDevicesNames.push_back(temp);
+		}
+		else {
+			soundDevices.erase(soundDevices.begin() + i);
+			i--;
+		}
 	}
+	int setSoundDevice = 0;
+	for (int i = 0; i < soundDevices.size(); i++)
+		if (soundDevices[i].isDefaultOutput)
+			setSoundDevice = i;
+	settings.setOutDevice(soundDevices[setSoundDevice]);
+	soundStream.setup(settings);
 	mouseDwell=0;
 	printf("\nPress Esc to exit when the EyeHarp window is active or Ctrl+c in the current terminal\n");
 	//showCircle=true;

@@ -114,6 +114,13 @@ void Eye::update(ofPoint Gaze, float* Velocity,bool *sacadic){
 	else if (variables::alperMode && variables::alperConfigureActive) {
 		octave.update(gaze);
 		disc.NotesNumber.update(gaze);
+        if (variables::internalSound)
+            timbrePresets.update(gaze);
+        // 
+       //  playArpeggio.update(gaze);
+        if (timbrePresets.changed) {
+            setTimbrePreset();
+        }
 	}
     if(disc.changed){ oct=octave.value;
 		//cout<<disc.note;
@@ -246,6 +253,8 @@ void Eye::draw(){
 	else if (variables::alperMode && variables::alperConfigureActive) {
 		octave.draw();
 		disc.NotesNumber.draw();
+        if (variables::internalSound)
+            timbrePresets.draw();
 	}
 	else
 		disc.testSong.draw();

@@ -46,7 +46,9 @@ class ofApp : public ofBaseApp {
 		bool sacadic;
 		eyetracker tracker;
 		ofPoint eyeSmoothed;
-        ofSoundStream soundstream;
+		ofSoundStreamSettings settings;
+		vector<ofSoundDevice> soundDevices;
+        ofSoundStream soundStream;
 		int fixationSamples;
         int mouseDwell;
 		void mySmooth();
