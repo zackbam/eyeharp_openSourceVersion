@@ -169,5 +169,8 @@
 /EyeHarp030.zip
 /EyeHarp.aps
 /EyeHarp.VC.VC.opendb
-/bin
 /src/._EyeHarpVARS.h
+/bin/EyeHarp_debug.exe
+/bin/EyeHarp_debug.exp
+/bin/EyeHarp_debug.lib
+/bin/EyeHarp_debug.pdb
