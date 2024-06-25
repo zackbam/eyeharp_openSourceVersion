@@ -30,7 +30,7 @@ void ofApp::setup(){
 	initParam = fopen(ofToDataPath("eyeharp.txt").c_str(), "r");
 	char paramName[31];
 	float minVol;
-	int loadSong = 0, discNotesNumber = 13, stepSequencerNotesNumber = 6, bufferSize = 256, transpose = 0, FIXVEL = 70, loopBeLoopMIDI = 0;
+	int loadSong = 0, discNotesNumber = 13, stepSequencerNotesNumber = 6, bufferSize = 512, transpose = 0, FIXVEL = 70, loopBeLoopMIDI = 0;
 	bool replaySame=true,Breath=false,cc1 = 0, cc2 = 0, cc7 = 1, cc11 = 0,afterTouch=0, inRelease = false, semitoneActive = false, showScale = true, scalePreset = true,  chordsONOFF = false, mouseEyetribeInput = false, clickDwell = false, tomidi = false, fullscreen = false, monophonic = true, showGaze = true;
 	int temp;
 	variables::alperMode = false;
