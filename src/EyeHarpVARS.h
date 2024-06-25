@@ -7,6 +7,7 @@
 #define MIDICH2 1
 #define mag 1.5
 #define magFac -2
+#define VERSION "1.0.95"
 //#define FIXVEL 70
 #include<vector>
 #include <ofTrueTypeFont.h>

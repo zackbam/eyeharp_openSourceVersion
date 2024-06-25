@@ -27,7 +27,7 @@ void ofApp::setup(){
 	ofSetCircleResolution(40);
 	FILE *initParam;
 	help = true;
-	initParam = fopen("bin/eyeharp.txt", "r");
+	initParam = fopen(ofToDataPath("eyeharp.txt").c_str(), "r");
 	char paramName[31];
 	float minVol;
 	int loadSong = 0, discNotesNumber = 13, stepSequencerNotesNumber = 6, bufferSize = 256, transpose = 0, FIXVEL = 70, loopBeLoopMIDI = 0;

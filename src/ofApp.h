@@ -42,6 +42,7 @@ class ofApp : public ofBaseApp {
 		bool firstRead;
 		//----- scenes
 		tobii myTobii;
+
 		EyeHarp HARP;
 		bool sacadic;
 		eyetracker tracker;
